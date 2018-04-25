@@ -78,18 +78,11 @@ class ReflexAgent(Agent):
 
         for ghost in newGhostStates:
             d = manhattanDistance(newPos, ghost.getPosition())
-            if d <= 1: 
-                if ghost.scaredTimer != 0:
+            if d <= 2:
+                if ghost.scaredTimer > 10:
                     score += 2000.0
                 else: 
                     score -= 200
-
-        for  capsule in currentGameState.getCapsules():
-            d = manhattanDistance(newPos, capsule)
-            if d == 0:
-                score += 100
-            else:
-                score += 10.0/d
 
         for food in newFood.asList():
             d = manhattanDistance(newPos, food);
