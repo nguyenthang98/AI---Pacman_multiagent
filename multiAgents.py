@@ -77,19 +77,19 @@ class ReflexAgent(Agent):
         score = successorGameState.getScore()
 
         for ghost in newGhostStates:
-            d = manhattanDistance(newPos, ghost.getPosition())
-            if d <= 2:
+            distance2Ghost = manhattanDistance(newPos, ghost.getPosition())
+            if distance2Ghost <= 2:
                 if ghost.scaredTimer > 10:
                     score += 2000.0
                 else: 
                     score -= 200
 
         for food in newFood.asList():
-            d = manhattanDistance(newPos, food);
-            if d == 0:
+            distance2Food = manhattanDistance(newPos, food);
+            if distance2Food == 0:
                 score += 10
             else:
-                score += 1.0/(d*d)
+                score += 1.0/(distance2Food*distance2Food)
                 
         return score
 
@@ -128,29 +128,30 @@ class MinimaxAgent(MultiAgentSearchAgent):
       Your minimax agent (question 2)
     """
 
-    def minimax(self, gameState, agentIdx, depth, isMax):
+    def minimax(self, gameState, agentIdx, depth):
         if depth == 0 or gameState.isWin() or gameState.isLose():
             return self.evaluationFunction(gameState), Directions.STOP
         actions = gameState.getLegalActions(agentIdx)
         bestScore = 0
         bestAction = None
+        isMax = agentIdx == 0
         # Pacman move
         if isMax:
-            scores = [self.minimax(gameState.generateSuccessor(agentIdx, action), 1, depth - 1, False)[0] for action in actions]
+            scores = [self.minimax(gameState.generateSuccessor(agentIdx, action), 1, depth - 1)[0] for action in actions]
             bestScore = max(scores)
             bestScoreIdxes = [i for i in range(len(scores)) if scores[i] == bestScore]
-            bestAction = actions[bestScoreIdxes[0]]
+            bestAction = actions[random.choice(bestScoreIdxes)]
         # ghost move
         else:
             scores = []
             # last ghost move
             if agentIdx == gameState.getNumAgents() - 1:
-                scores = [self.minimax(gameState.generateSuccessor(agentIdx, action), 0, depth - 1, True)[0] for action in actions]
+                scores = [self.minimax(gameState.generateSuccessor(agentIdx, action), 0, depth - 1)[0] for action in actions]
             else:
-                scores = [self.minimax(gameState.generateSuccessor(agentIdx, action), agentIdx + 1, depth, False)[0] for action in actions]
+                scores = [self.minimax(gameState.generateSuccessor(agentIdx, action), agentIdx + 1, depth)[0] for action in actions]
             bestScore = min(scores)
             bestScoreIdxes = [i for i in range(len(scores)) if scores[i] == bestScore]
-            bestAction = actions[bestScoreIdxes[0]]
+            bestAction = actions[random.choice(bestScoreIdxes)]
         return bestScore, bestAction
 
     def getAction(self, gameState):
@@ -171,7 +172,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
             Returns the total number of agents in the game
         """
         "*** YOUR CODE HERE ***"
-        return self.minimax(gameState, 0, self.depth * 2, True)[1]
+        return self.minimax(gameState, 0, self.depth * 2)[1]
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
